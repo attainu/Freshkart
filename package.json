@@ -1,18 +1,39 @@
 {
-  "name": "Freshkart",
+  "name": "project",
   "version": "1.0.0",
-  "description": "Project done by Amol and Rohan",
-  "main": "index.js",
+  "description": "Procect done by Amol and Rohan ",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/attainu/Freshkart.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Amol Vaditake",
   "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "nexmo": "^2.6.0",
+    "passport": "^0.4.1",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "pg": "^7.18.2",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.21.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  },
   "bugs": {
     "url": "https://github.com/attainu/Freshkart/issues"
   },
