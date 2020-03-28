@@ -26,7 +26,8 @@ module.exports = {
                 image: cartProduct.image,
                 category: cartProduct.category,
                 price: cartProduct.price,
-                description: cartProduct.description
+                description: cartProduct.description,
+                quantity: req.body.quantity
             };
             const cart = await Cart.create({
                 ...cartProductBody
@@ -34,8 +35,15 @@ module.exports = {
             await cartProduct.update({
                 timesSold: cartProduct.timesSold + 1
             });
-
-            res.status(200).send("added to cart successfullly");
+            const check2 = await Cart.findOne({
+                where: {
+                    productId: id
+                }
+            })
+            await cart.update({
+                totalPrice: (cart.quantity * cart.price)
+            });
+            res.status(200).json(check2);
         } catch (err) {
             console.log(err);
             if (err.name === "ValidationError")

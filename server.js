@@ -21,6 +21,8 @@ app.use(express.json());
 app.use(passport.initialize());
 // user Routes
 app.use(require("./routes/userRoutes"));
+// User Address Routes
+app.use(require("./routes/addressRoutes"));
 //product Routes
 app.use(require("./routes/productRoutes"));
 //cart Routes

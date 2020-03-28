@@ -18,7 +18,7 @@ module.exports = {
         try {
             const id = req.params.id
             const code = req.body.code
-            if (code == 9960) {
+            if (code == process.env.CODE) {
                 const faq = await FAQ.findOne({
                     where: {
                         id

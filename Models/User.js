@@ -79,13 +79,12 @@ class User extends Model {
         id: this.getDataValue("id")
       },
       secretKey, {
-        expiresIn: (1000 * 60 * 10).toString()
+        expiresIn: (1000 * 60 * 60 * 60)
       }
     );
     this.setDataValue("token", token);
     await this.save();
   }
-
 }
 
 User.init(userSchema, {

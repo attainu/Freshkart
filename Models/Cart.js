@@ -38,6 +38,15 @@ const cartSchema = {
         type: Sequelize.STRING,
         allowNull: false,
     },
+    quantity: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 1
+    },
+    totalPrice: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+    },
     description: {
         type: Sequelize.STRING,
         allowNull: false,
