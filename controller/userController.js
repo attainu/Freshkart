@@ -2,8 +2,8 @@ const User = require("../models/User");
 const {
   verify
 } = require("jsonwebtoken");
-const BRAND_NAME = "freshKart";
-const nexmo = require("../nexmo");
+
+const nexmo = require("../utils/nexmo");
 
 module.exports = {
   async registerUser(req, res) {
@@ -15,7 +15,7 @@ module.exports = {
       const number = req.body.phoneNumber;
       nexmo.verify.request({
           number: "91" + number,
-          brand: BRAND_NAME
+          brand: process.env.BRAND_NAME
         },
         (err, result) => {
           if (err) {
@@ -72,7 +72,6 @@ module.exports = {
   },
 
   async loginUser(req, res) {
-    // Get the users json file
     const {
       phoneNumber,
       password
@@ -86,9 +85,14 @@ module.exports = {
       );
       if (user.dataValues.isConfirmed) {
         await user.generateToken();
-        return res.json({
-          token: "JWT " + user.token
+        const token = user.token;
+        console.log(token)
+        res.cookie("token", user.token, {
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 12),
+          httpOnly: true,
+          sameSite: "none"
         });
+        res.send("http://localhost:1234/#dashboard");
       } else {
         const number = user.dataValues.phoneNumber;
         nexmo.verify.request({
@@ -125,7 +129,7 @@ module.exports = {
       });
       await user.setDataValue("token", "");
       await user.save();
-      res.send("logout successfully ")
+      res.send("logout successfully ");
     } catch (err) {
       console.log(err.message);
       res.send("invalid Credential");
@@ -260,6 +264,34 @@ module.exports = {
     }
   },
 
+  async updateProfile(req, res) {
+    const {
+      phoneNumber,
+      password,
+      email,
+      name
+    } = req.body;
+
+    if (!phoneNumber || !password) return res.status(400).send("Bad request");
+    try {
+      const user = await User.findByPhoneNumberAndPassword(
+        phoneNumber,
+        password
+      );
+      if (!user) {
+        return res.status(401).send("Incorrect credentials");
+      }
+      await user.update({
+        email,
+        name
+      });
+      return res.send(user);
+    } catch (err) {
+      console.log(err.message);
+      res.send("invalid credential");
+    }
+  },
+
   async showUserData(req, res) {
     res.json({
       user: req.user
@@ -285,13 +317,13 @@ module.exports = {
     const user = req.user;
     await user.generateToken();
     console.log(user.token);
-    // Send the token as a cookie ..
     res.cookie("token", user.token, {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 12),
       httpOnly: true,
       sameSite: "none"
     });
     // Redirect to the clients route (http://localhost:1234)
+
     res.redirect("http://localhost:1234/#dashboard");
   }
 };

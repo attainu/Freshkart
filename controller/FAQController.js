@@ -48,6 +48,32 @@ module.exports = {
                 return res.status(400).send(`Validation Error: ${err.message}`);
             res.send(err.message);
         }
+    },
+
+    async deleteFAQ(req, res) {
+        try {
+            const id = req.params.id
+            const code = req.body.code
+            if (code == process.env.CODE) {
+                const faq = await FAQ.findOne({
+                    where: {
+                        id
+                    }
+                });
+                await FAQ.destroy({
+                    where: {
+                        id
+                    }
+                });
+                res.status(200).send("Question deleted successfully");
+            }
+            res.send("Only Owner can delete  the quetion you Are not owner");
+        } catch (err) {
+            console.log(err);
+            if (err.name === "ValidationError")
+                return res.status(400).send(`Validation Error: ${err.message}`);
+            res.send(err.message);
+        }
     }
 
 }

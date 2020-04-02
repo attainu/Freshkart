@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 dotenv.config();
 require("./db");
-require("./passport");
+require("./utils/passport");
 // Init
 const app = express();
 app.use(express.json());
@@ -14,9 +14,9 @@ app.use(
     cors({
         origin: "http://localhost:1234",
         credentials: true,
-        allowedHeaders: ["Content-Type"]
-    })
-);
+        allowedHeaders: ["Content-Type", "Authorization", ]
+
+    }));
 app.use(express.json());
 app.use(passport.initialize());
 // user Routes
@@ -35,6 +35,8 @@ app.use(require("./routes/reviewRoutes"));
 app.use(require("./routes/faqRoutes"));
 //Product FAQ Routes
 app.use(require("./routes/productFAQRoutes"));
+//Order Routes
+app.use(require("./routes/orderRoutes"));
 
 
 app.listen(3000, function () {

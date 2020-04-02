@@ -17,7 +17,9 @@ module.exports = {
                 }
             })
             if (check) {
-                return res.status(401).send("already added in Cart");
+                return res.send({
+                    massage: "fail"
+                });
             }
             const cartProductBody = {
                 productId: cartProduct.id,
@@ -43,7 +45,10 @@ module.exports = {
             await cart.update({
                 totalPrice: (cart.quantity * cart.price)
             });
-            res.status(200).json(check2);
+            res.status(200).json({
+                check2,
+                massage: "done"
+            });
         } catch (err) {
             console.log(err);
             if (err.name === "ValidationError")

@@ -27,7 +27,7 @@ const productSchema = {
     },
     timesSold: {
         type: Sequelize.INTEGER,
-        default: 0
+        defaultValue: 0
     }
 };
 

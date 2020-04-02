@@ -8,6 +8,7 @@ const {
   loginUser,
   logoutUser,
   changePassword,
+  updateProfile,
   forgotPassword,
   resetPassword,
   deactivateAccount,
@@ -22,6 +23,7 @@ router.post("/register", registerUser);
 router.post("/checkotp", checkotp);
 router.post("/login", loginUser);
 router.post("/changePassword", changePassword);
+router.post("/updateProfile", updateProfile);
 router.post("/forgotPassword", forgotPassword);
 router.post("/resetPassword", resetPassword);
 router.post("/deactivateAccount", deactivateAccount);

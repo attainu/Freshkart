@@ -9,7 +9,7 @@ const {
 const {
   Strategy: FacebookStrategy
 } = require("passport-facebook");
-const User = require("./models/User");
+const User = require("./../Models/User");
 const cookieParser = require("cookie-parser");
 
 const {
