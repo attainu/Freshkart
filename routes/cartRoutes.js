@@ -6,7 +6,9 @@ const passport = require("passport");
 const {
     addToCart,
     carts,
-    removeFromCart
+    removeFromCart,
+    updateQuantity
+
 } = require("../controller/cartController");
 
 router.get("/carts", passport.authenticate("jwt", {
@@ -18,5 +20,9 @@ router.post("/addToCart/:id", passport.authenticate("jwt", {
 router.post("/removeFromCart/:id", passport.authenticate("jwt", {
     session: false
 }), removeFromCart)
+router.post("/updateQuantity/:id", passport.authenticate("jwt", {
+    session: false
+}), updateQuantity)
+
 
 module.exports = router;

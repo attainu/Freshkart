@@ -41,6 +41,7 @@ router.get(
   }),
   showUserData
 );
+
 router.get(
   "/google",
   passport.authenticate("google", {

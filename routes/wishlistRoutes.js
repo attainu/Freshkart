@@ -15,7 +15,6 @@ router.get("/wishlists", passport.authenticate("jwt", {
 router.post("/addToWishlist/:id", passport.authenticate("jwt", {
     session: false
 }), addToWishlist)
-
 router.post("/removeFromWishlist/:id", passport.authenticate("jwt", {
     session: false
 }), removeFromWishlist)

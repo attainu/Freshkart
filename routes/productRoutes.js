@@ -8,12 +8,14 @@ const {
     productDetails,
     searchProducts
 } = require("../controller/productController");
-
+const passport = require("passport");
 
 router.get("/products", getProducts)
 router.get("/products/:id", productDetails)
 router.get("/search/:category", searchProducts)
-router.post('/addproduct', createProduct);
+router.post('/addproduct', passport.authenticate('admin-rule', {
+    session: false
+}), createProduct);
 
 
 

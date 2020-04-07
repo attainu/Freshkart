@@ -14,6 +14,10 @@ const productFAQSchema = {
             key: 'id'
         }
     },
+    productName: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
     question: {
         type: Sequelize.STRING,
         allowNull: false

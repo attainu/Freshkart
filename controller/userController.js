@@ -1,9 +1,6 @@
 const User = require("../models/User");
-const {
-  verify
-} = require("jsonwebtoken");
-
 const nexmo = require("../utils/nexmo");
+const Address = require("../models/Address");
 
 module.exports = {
   async registerUser(req, res) {
@@ -23,7 +20,10 @@ module.exports = {
           } else if (result.status == 0) {
             user.setDataValue("request_id", result.request_id);
             user.save();
-            res.status(200).json(result);
+            res.status(200).json({
+              result,
+              massage: "done"
+            });
           } else {
             res.json(result);
           }
@@ -54,7 +54,6 @@ module.exports = {
           if (err) {
             console.error(err);
           } else if (result.status == 0) {
-            console.log(result);
             user.setDataValue("isConfirmed", true);
             user.save();
             res.status(200).json(result);
@@ -77,7 +76,10 @@ module.exports = {
       password
     } = req.body;
     if (!phoneNumber || !password)
-      return res.status(400).send("Incorrect credentials");
+      return res.send({
+        error: "Incorrect credentials",
+        massage: "fail"
+      });
     try {
       const user = await User.findByPhoneNumberAndPassword(
         phoneNumber,
@@ -86,13 +88,15 @@ module.exports = {
       if (user.dataValues.isConfirmed) {
         await user.generateToken();
         const token = user.token;
-        console.log(token)
         res.cookie("token", user.token, {
           expires: new Date(Date.now() + 1000 * 60 * 60 * 12),
           httpOnly: true,
           sameSite: "none"
         });
-        res.send("http://localhost:1234/#dashboard");
+        res.status(200).json({
+          token,
+          massage: "done"
+        });
       } else {
         const number = user.dataValues.phoneNumber;
         nexmo.verify.request({
@@ -114,7 +118,10 @@ module.exports = {
       }
     } catch (err) {
       console.log(err.message);
-      res.send("invalid Credential");
+      res.send({
+        error: "invalid Credential",
+        massage: "fail"
+      });
     }
   },
 
@@ -129,10 +136,16 @@ module.exports = {
       });
       await user.setDataValue("token", "");
       await user.save();
-      res.send("logout successfully ");
+      res.clearCookie('token');
+      res.send({
+        massage: "done"
+      });
     } catch (err) {
       console.log(err.message);
-      res.send("invalid Credential");
+      res.send({
+        error: "invalid Credential",
+        massage: "fail"
+      });
     }
   },
 
@@ -155,10 +168,16 @@ module.exports = {
       await user.update({
         password: newPassword
       });
-      return res.send(user);
+      return res.send({
+        user,
+        massage: "done"
+      });
     } catch (err) {
       console.log(err.message);
-      res.send("invalid credential");
+      res.send({
+        error: "invalid Credential",
+        massage: "fail"
+      });
     }
   },
 
@@ -175,14 +194,19 @@ module.exports = {
         password
       );
       if (!user) {
-        return res.status(401).send("Incorrect credentials");
+        return res.send({
+          error: "invalid Credential",
+          massage: "fail"
+        });;
       }
       await User.destroy({
         where: {
           phoneNumber
         }
       });
-      return res.send("User Deactivated suucessfully");
+      return res.send({
+        massage: "done"
+      });
     } catch (err) {
       console.log(err.message);
       res.status(500).send("Server Error");
@@ -201,9 +225,9 @@ module.exports = {
         }
       });
       if (!user) {
-        return res
-          .status(400)
-          .send("There is no user present. Kindly register");
+        return res.send({
+          massage: "There is no user present. Kindly register first"
+        });
       } else {
         nexmo.verify.request({
             number: "91" + phoneNumber,
@@ -215,9 +239,15 @@ module.exports = {
             } else if (result.status == 0) {
               user.setDataValue("request_id", result.request_id);
               user.save();
-              res.status(200).json(result);
+              res.status(200).send({
+                result,
+                massage: "done"
+              });
             } else {
-              res.send("invalid Credential");
+              res.send({
+                error: "invalid Credential",
+                massage: "fail"
+              });
             }
           }
         );
@@ -252,9 +282,15 @@ module.exports = {
             console.log(result);
             user.setDataValue("password", password);
             user.save();
-            res.status(200).json(result);
+            res.status(200).send({
+              result,
+              massage: "done"
+            });
           } else {
-            res.send("invalid Credential");
+            res.send({
+              error: "invalid Credential",
+              massage: "fail"
+            });
           }
         }
       );
@@ -269,7 +305,6 @@ module.exports = {
       phoneNumber,
       password,
       email,
-      name
     } = req.body;
 
     if (!phoneNumber || !password) return res.status(400).send("Bad request");
@@ -279,22 +314,36 @@ module.exports = {
         password
       );
       if (!user) {
-        return res.status(401).send("Incorrect credentials");
+        return res.send({
+          error: "Incorrect credentials",
+          massage: "done"
+        });
       }
       await user.update({
-        email,
-        name
+        email
       });
-      return res.send(user);
+      return res.send({
+        user,
+        massage: "done"
+      });
     } catch (err) {
       console.log(err.message);
-      res.send("invalid credential");
+      res.send({
+        error: "invalid Credential",
+        massage: "fail"
+      });
     }
   },
 
   async showUserData(req, res) {
-    res.json({
-      user: req.user
+    const address = await Address.findAll({
+      where: {
+        userId: req.user.id
+      }
+    });
+    res.status(200).json({
+      user: req.user,
+      address
     });
   },
 
@@ -323,7 +372,6 @@ module.exports = {
       sameSite: "none"
     });
     // Redirect to the clients route (http://localhost:1234)
-
     res.redirect("http://localhost:1234/#dashboard");
   }
 };

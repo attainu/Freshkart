@@ -1,9 +1,12 @@
 const Orders = require("../models/Orders");
 const User = require("../models/User");
+const Cart = require("../models/Cart");
 const instance = require("../utils/razorpay");
 const createSignature = require("../utils/createSignature");
 const sendMail = require("../utils/generateEmail");
-const { v4: uuid } = require("uuid");
+const {
+  v4: uuid
+} = require("uuid");
 
 module.exports = {
   async order(req, res) {
@@ -14,7 +17,9 @@ module.exports = {
           id
         }
       });
-      const { amount } = req.body;
+      const {
+        amount
+      } = req.body;
       const transactionId = uuid();
       const orderOptions = {
         currency: "INR",
@@ -38,7 +43,8 @@ module.exports = {
         statusCode: 201,
         orderId: order.id,
         amount: transaction.order_value,
-        email: user.dataValues.email
+        email: user.dataValues.email,
+        userId: req.user.id
       });
     } catch (err) {
       console.log(err);
@@ -56,7 +62,8 @@ module.exports = {
       razorpay_payment_id,
       razorpay_signature,
       order_id,
-      email
+      email,
+      userId
     } = req.body;
     try {
       const amountInRupees = amount / 100;
@@ -107,6 +114,11 @@ module.exports = {
         razorpay_order_id
       );
       console.log("Mail send Successfully");
+      await Cart.destroy({
+        where: {
+          userId
+        }
+      });
       res.status(201).send({
         transaction,
         captureResponse

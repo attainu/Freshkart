@@ -6,7 +6,7 @@ module.exports = {
             const question = await FAQ.create({
                 question: req.body.question
             });
-            res.send("Quetion Posted Successfully");
+            res.status(200).send("Quetion Posted Successfully");
         } catch (err) {
             console.log(err);
             if (err.name === "ValidationError")
@@ -17,19 +17,18 @@ module.exports = {
     async answers(req, res) {
         try {
             const id = req.params.id
-            const code = req.body.code
-            if (code == process.env.CODE) {
-                const faq = await FAQ.findOne({
-                    where: {
-                        id
-                    }
-                });
-                await faq.update({
-                    answer: req.body.answer
-                });
-                res.status(200).json(faq);
-            }
-            res.send("Only Owner can answer the quetion you Are not owner");
+            const faq = await FAQ.findOne({
+                where: {
+                    id
+                }
+            });
+            await faq.update({
+                answer: req.body.answer
+            });
+            res.status(200).send({
+                faq,
+                massage: "done"
+            });
         } catch (err) {
             console.log(err);
             if (err.name === "ValidationError")

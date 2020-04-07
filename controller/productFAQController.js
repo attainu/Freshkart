@@ -1,14 +1,24 @@
 const PFAQ = require("../models/ProductFAQ");
+const Product = require("../models/Product");
 
 module.exports = {
     async askQuetions(req, res) {
         const id = req.params.id
         try {
+            const product = await Product.findOne({
+                where: {
+                    id
+                }
+            });
             const question = await PFAQ.create({
                 question: req.body.question,
-                productId: id,
+                productName: product.dataValues.name,
+                productId: id
             });
-            res.send("Quetion Posted Successfully");
+            res.status(200).send({
+                massage: "done",
+                question
+            });
         } catch (err) {
             console.log(err);
             if (err.name === "ValidationError")
@@ -27,7 +37,10 @@ module.exports = {
             await faq.update({
                 answer: req.body.answer
             });
-            res.status(200).json(faq);
+            res.status(200).send({
+                massage: "done",
+                faq
+            });
         } catch (err) {
             console.log(err);
             if (err.name === "ValidationError")

@@ -45,7 +45,7 @@ module.exports = {
                     productId: id
                 }
             });
-            res.status(200).send({
+            res.status(200).json({
                 product,
                 faq,
                 review

@@ -60,12 +60,20 @@ module.exports = {
     async removeFromCart(req, res) {
         try {
             const productId = req.params.id
+            const cartProduct = await Product.findOne({
+                where: {
+                    id: productId
+                }
+            });
             const userId = req.user.id
             await Cart.destroy({
                 where: {
                     productId,
                     userId
                 }
+            });
+            await cartProduct.update({
+                timesSold: cartProduct.timesSold - 1
             });
             res.send("removed from cart successfully");
         } catch (err) {
@@ -91,5 +99,30 @@ module.exports = {
                 return res.status(400).send(`Validation Error: ${err.message}`);
             res.send(err.message);
         }
-    }
+    },
+    async updateQuantity(req, res) {
+        try {
+            const id = req.params.id
+            const cartProduct = await Cart.findOne({
+                where: {
+                    productId: id,
+                    userId: req.user.id
+                }
+            });
+            await cartProduct.update({
+                quantity: req.body.quantity,
+                totalPrice: (req.body.quantity * cartProduct.price)
+            });
+            res.status(200).json({
+                cartProduct,
+                massage: "done"
+            });
+        } catch (err) {
+            console.log(err);
+            if (err.name === "ValidationError")
+                return res.status(400).send(`Validation Error: ${err.message}`);
+            res.send(err);
+        }
+    },
+
 }

@@ -1,26 +1,41 @@
 const Review = require("../models/Review");
-
+const User = require("../models/User");
 module.exports = {
     async addReview(req, res) {
         try {
             const id = req.params.id
+            const user = await User.findOne({
+                where: {
+                    id: req.user.id
+                }
+            });
+
             const check = await Review.findOne({
                 where: {
-                    productId: id
+                    productId: id,
+                    userId: req.user.id
                 }
             })
             if (check) {
-                return res.status(401).send("already added review");
+                await check.update({
+                    ...req.body
+                });
+                return res.send({
+                    massage: "You already added review so your review is updated now"
+                });
             }
             const body = {
                 ...req.body,
                 productId: id,
                 userId: req.user.id,
+                userName: user.dataValues.name
             };
             const review = await Review.create({
                 ...body
             });
-            res.status(200).send("added review successfullly");
+            res.status(200).send({
+                massage: "done"
+            });
         } catch (err) {
             console.log(err);
             if (err.name === "ValidationError")

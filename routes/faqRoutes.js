@@ -2,6 +2,7 @@ const {
     Router
 } = require("express");
 const router = Router();
+const passport = require("passport");
 const {
     askQuetions,
     allFAQ,
@@ -12,8 +13,12 @@ const {
 
 router.get("/FAQ", allFAQ)
 router.post("/askQuetions", askQuetions)
-router.post('/answers/:id', answers);
-router.post('/deleteFAQ/:id', deleteFAQ);
+router.post('/answers/:id', passport.authenticate('admin-rule', {
+    session: false
+}), answers);
+router.post('/deleteFAQ/:id', passport.authenticate('admin-rule', {
+    session: false
+}), deleteFAQ);
 
 
 

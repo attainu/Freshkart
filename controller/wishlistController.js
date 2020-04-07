@@ -17,7 +17,9 @@ module.exports = {
                 }
             })
             if (check) {
-                return res.status(401).send("already added in Wishlist");
+                return res.send({
+                    massage: "fail"
+                });
             }
             const wishlistProductBody = {
                 productId: wishlistProduct.id,
@@ -31,7 +33,10 @@ module.exports = {
             const wishlist = await Wishlist.create({
                 ...wishlistProductBody
             });
-            res.status(200).send("added to Wishist successfullly");
+            res.status(200).send({
+                wishlist,
+                massage: "done"
+            });
         } catch (err) {
             console.log(err);
             if (err.name === "ValidationError")

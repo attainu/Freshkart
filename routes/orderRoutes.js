@@ -1,7 +1,12 @@
-const { Router } = require("express");
+const {
+  Router
+} = require("express");
 const router = Router();
 const passport = require("passport");
-const { order, verify } = require("../controller/orderController");
+const {
+  order,
+  verify
+} = require("../controller/orderController");
 
 router.post(
   "/orders",
