@@ -1,9 +1,16 @@
 const passport = require("passport");
-const { Strategy: JWTStrategy, ExtractJwt } = require("passport-jwt");
-const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
-const { Strategy: FacebookStrategy } = require("passport-facebook");
-const User = require("./../Models/User");
-const Admin = require("./../Models/Admin");
+const {
+  Strategy: JWTStrategy,
+  ExtractJwt
+} = require("passport-jwt");
+const {
+  Strategy: GoogleStrategy
+} = require("passport-google-oauth20");
+const {
+  Strategy: FacebookStrategy
+} = require("passport-facebook");
+const User = require("../models/User");
+const Admin = require("../models/Admin");
 
 const {
   GOOGLE_CLIENT_ID,
@@ -23,7 +30,9 @@ const jwtOptions = {
 };
 
 passport.use(
-  new JWTStrategy(jwtOptions, async ({ id }, done) => {
+  new JWTStrategy(jwtOptions, async ({
+    id
+  }, done) => {
     try {
       const user = await User.findOne({
         where: {
@@ -45,7 +54,9 @@ passport.use(
 
 passport.use(
   "admin-rule",
-  new JWTStrategy(jwtOptions, async ({ id }, done) => {
+  new JWTStrategy(jwtOptions, async ({
+    id
+  }, done) => {
     try {
       const admin = await Admin.findOne({
         where: {
@@ -77,7 +88,10 @@ passport.use(
   new GoogleStrategy(googleOptions, async (_, _1, googleProfile, done) => {
     try {
       const {
-        _json: { email, name },
+        _json: {
+          email,
+          name
+        },
       } = googleProfile;
       // Ask whether the user is present or not.
       let user = await User.findOne({
@@ -113,7 +127,11 @@ passport.use(
     async (_, _1, facebookProfile, done) => {
       try {
         const {
-          _json: { email, first_name, last_name },
+          _json: {
+            email,
+            first_name,
+            last_name
+          },
         } = facebookProfile;
         // Ask whether the user is present or not.
         let user = await User.findOne({
