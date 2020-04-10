@@ -2,6 +2,7 @@ const Admin = require("../models/Admin");
 const FAQ = require("../models/FAQ");
 const PFAQ = require("../models/ProductFAQ");
 const Product = require("../models/Product");
+const SuccessfullOrder = require("../models/SuccessfullOrder")
 
 module.exports = {
     async registerAdmin(req, res) {
@@ -10,7 +11,13 @@ module.exports = {
                 req.body.key == process.env.CREATEADMINKEY &&
                 req.body.verify == process.env.CREATEADMINPASS
             ) {
+                const lastAdmin = await Admin.findOne({
+                    order: [
+                        ['id', 'DESC']
+                    ]
+                });
                 const admin = await Admin.create({
+                    id: lastAdmin.dataValues.id + 1,
                     ...req.body,
                 });
                 res.send({
@@ -157,21 +164,34 @@ module.exports = {
                 where: {
                     answer: "Not Answered Yet",
                 },
+                limit: 7
+
             });
             const pfaq = await PFAQ.findAll({
                 where: {
                     answer: "Not Answered Yet",
                 },
+                limit: 7
             });
             const products = await Product.findAll({
                 order: [
                     ["timesSold", "DESC"]
                 ],
+                limit: 10
+            });
+            const successfullOrders = await SuccessfullOrder.findAll({
+                where: {
+                    order_status: "pending",
+                },
+                order: [
+                    ["id", "DESC"]
+                ]
             });
             res.status(200).send({
                 faq,
                 pfaq,
                 products,
+                successfullOrders
             });
         } catch (err) {
             console.log(err);

@@ -24,7 +24,14 @@ const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromExtractors([
     ExtractJwt.fromAuthHeaderWithScheme("JWT"),
     (req) => req.cookies.token,
-    (req) => req.cookies.adminToken,
+  ]),
+  secretOrKey: JWT_SECRET_KEY,
+};
+
+const jwtOptions2 = {
+  jwtFromRequest: ExtractJwt.fromExtractors([
+    ExtractJwt.fromAuthHeaderWithScheme("AJWT"),
+    (req) => req.cookies.adminToken
   ]),
   secretOrKey: JWT_SECRET_KEY,
 };
@@ -54,7 +61,7 @@ passport.use(
 
 passport.use(
   "admin-rule",
-  new JWTStrategy(jwtOptions, async ({
+  new JWTStrategy(jwtOptions2, async ({
     id
   }, done) => {
     try {
