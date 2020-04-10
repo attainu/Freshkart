@@ -1,9 +1,13 @@
 const Orders = require("../models/Orders");
 const User = require("../models/User");
 const Cart = require("../models/Cart");
+const SucessfullOrder = require("../models/SuccessfullOrder")
 const instance = require("../utils/razorpay");
 const createSignature = require("../utils/createSignature");
-const sendMail = require("../utils/generateEmail");
+const {
+  sendMailToUser,
+  sendOrderStatus
+} = require("../utils/generateEmail");
 const {
   v4: uuid
 } = require("uuid");
@@ -72,7 +76,7 @@ module.exports = {
         razorpay_payment_id
       );
       if (createdSignature !== razorpay_signature) {
-        await sendMail(
+        await sendMailToUser(
           email,
           "fail",
           amountInRupees,
@@ -106,7 +110,7 @@ module.exports = {
         isPending: false,
         razorpay_order_id: razorpay_order_id
       });
-      await sendMail(
+      await sendMailToUser(
         email,
         "success",
         amountInRupees,
@@ -114,6 +118,18 @@ module.exports = {
         razorpay_order_id
       );
       console.log("Mail send Successfully");
+      const cartItems = await Cart.findAll({
+        where: {
+          userId
+        }
+      });
+      const success = await SucessfullOrder.create({
+        order_value: amount / 100,
+        order_id,
+        userId,
+        cartItems,
+        userMail: email
+      });
       await Cart.destroy({
         where: {
           userId
@@ -121,8 +137,42 @@ module.exports = {
       });
       res.status(201).send({
         transaction,
-        captureResponse
+        captureResponse,
+        success
       });
+    } catch (err) {
+      console.log(err);
+      if (err.name === "ValidationError")
+        return res.status(400).send(`Validation Error: ${err.message}`);
+      res.send(err);
+    }
+  },
+
+  async status(req, res) {
+    const {
+      status
+    } = req.body;
+    const orderId = req.params.id
+    try {
+      const order = await SucessfullOrder.findOne({
+        where: {
+          id: orderId
+        }
+      });
+      const email = order.dataValues.userMail;
+      if (status === "accepted") {
+        await order.update({
+          order_status: "accepted",
+        });
+        await sendOrderStatus(email, "accepted")
+        res.status(200).json(order)
+      } else if (status === "rejected") {
+        await order.update({
+          order_status: "rejected",
+        });
+        await sendOrderStatus(email, "rejected")
+        res.status(200).json(order)
+      }
     } catch (err) {
       console.log(err);
       if (err.name === "ValidationError")

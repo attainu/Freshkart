@@ -5,7 +5,8 @@ const router = Router();
 const passport = require("passport");
 const {
   order,
-  verify
+  verify,
+  status
 } = require("../controller/orderController");
 
 router.post(
@@ -16,5 +17,12 @@ router.post(
   order
 );
 router.post("/verify", verify);
+router.post(
+  "/orderStatus/:id",
+  passport.authenticate('admin-rule', {
+    session: false
+  }),
+  status
+);
 
 module.exports = router;

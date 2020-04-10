@@ -5,7 +5,13 @@ const Address = require("../models/Address");
 module.exports = {
   async registerUser(req, res) {
     try {
+      const lastUser = await User.findOne({
+        order: [
+          ['id', 'DESC']
+        ]
+      });
       const user = await User.create({
+        id: lastUser.dataValues.id + 1,
         ...req.body,
         isThirdPartyUser: false
       });

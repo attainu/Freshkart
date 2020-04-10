@@ -1,12 +1,29 @@
 const Product = require("../models/Product");
 const FAQ = require("../models/ProductFAQ");
 const Review = require("../models/Review");
+const convertBufferToString = require("../utils/convertBufferToString");
+const cloudinary = require("../utils/cloudinary");
+const {
+    Sequelize
+} = require("sequelize");
 
 module.exports = {
     async createProduct(req, res) {
         try {
+            const imageContent = convertBufferToString(
+                req.file.originalname,
+                req.file.buffer
+            );
+            const imageRes = await cloudinary.uploader.upload(imageContent)
+            const lastProduct = await Product.findOne({
+                order: [
+                    ['id', 'DESC']
+                ]
+            });
             const product = await Product.create({
-                ...req.body
+                id: lastProduct.dataValues.id + 1,
+                ...req.body,
+                image: imageRes.secure_url
             });
             res.status(200).json(product);
         } catch (err) {
